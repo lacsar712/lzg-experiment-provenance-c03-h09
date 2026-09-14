@@ -164,10 +164,12 @@ async function withBusy(fn) {
   try {
     await fn()
     await load()
-  } catch (e) {
-    message.error(e.message || '命令失败')
-  } finally {
     message.success('命令已接受')
+  } catch (e) {
+    const status = e.response?.status
+    const reason = e.message || '命令失败'
+    message.error(status ? `命令被拒绝（HTTP ${status}）：${reason}` : reason)
+  } finally {
     busy.value = false
   }
 }
